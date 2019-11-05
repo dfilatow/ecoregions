@@ -1,4 +1,7 @@
+/results
+*.dat
 password.txt
 *.csv
 
 *.xls
+.Rproj.user
