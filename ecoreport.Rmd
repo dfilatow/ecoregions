@@ -3,6 +3,7 @@ title: "Ecoregion Report"
 author: "Deepa Filatow"
 date: "May 25, 2020"
 output: html_document
+runtime: shiny
 ---
 
 ```{r setup, include=FALSE}
@@ -13,28 +14,26 @@ knitr::opts_chunk$set(echo = TRUE)
 
 Below is a map of the ecosections coloured by ecosection code.
 
-```{r loadlibraries, include = FALSE}
+```{r loadlibraries, include = FALSE, message= FALSE}
 library (bcdata)
 library (sf)
 library (raster)
 library (fasterize)
 library (leaflet)
+library (shiny)
+
+#load data
 alb = 3005
-ecosections <- bcdc_get_data("ccc01f43-860d-4583-8ba4-e72d8379441e", crs = alb)
+ecosections <- bcdc_get_data ("ccc01f43-860d-4583-8ba4-e72d8379441e", crs = alb)
 elev <- raster("C:/Users/dfilatow/Documents/GISdownloads/HABC/elev.tif")
+```
+
+
+```{r ecosectionmap}
 plot (ecosections["ECOSECTION_CODE"])
-```
-
-
-```{r ecosectionname, include=FALSE}
 es.name <- "Elk Valley"
-#ecosections$ELEV_MAX <- raster::extract(elev, ecosections, fun = max)
-#plot (ecosections["ELEV_MAX"])
-#es.r <- fasterize(ecosections, elev,field = "OBJECTID")
-#test <- zonal(elev, es.r)
-#plot(test)
-
 ```
+
 
 ### Ecosection Topography
 
@@ -66,3 +65,18 @@ plot(bec["MAP_LABEL"])
 ```
 
 This is the end of the demo.
+
+```{r leaflet}
+leaflet (es)
+```
+
+
+Why does this draw nothing??
+
+### Ecosection Selecti0n
+
+```{r ecoselect, echo = FALSE}
+selectInput("es_input", "Please choose an ecosection:", as.list(ecosections$ECOSECTION_NAME))
+renderText({paste ("You chose", input$es_input)})
+```
+
