@@ -34,47 +34,26 @@ plot(ecosections["ECOSECTION_CODE"])
 ```
 
 ### Ecosection Selection
-```{r econame, echo = FALSE}
-es.name <- "Elk Valley"
+
+This part is not working
+
+```{r ecoselect, echo = FALSE}
+selectInput("es_input", "Ecosection Selection", as.list(ecosections$ECOSECTION_NAME))
+renderText(paste("You have chosen", input$es_input))
+renderLeaflet (filter(ecosections, ECOSECTION_NAME == as.character(input$es_input)))
+es.name <- renderText(input$es_input)
 ```
 
-Here is where a shiny selection of ecosection would be GREAT but I can not get it to work.
+
 
 ### Ecosection Topography
 
-Here is a map of the `r es.name` Ecosection showing the 1 ha mean elevation.
+Here is a map of the `r input$es_input` Ecosection showing the 1 ha mean elevation.
 
 ```{r elevecosection}
 
-es <- filter(ecosections, ECOSECTION_NAME == as.character(es.name))
+es <- filter(ecosections, ECOSECTION_NAME == as.character(input$es_input))
 es.elev <- elev %>% raster::crop(es) %>% mask(es)
 plot(es.elev)
 
 ```
-
-This is a histogram of the 1 ha elevation in the ecosection.
-
-```{r elevhistogram}
-hist(es.elev)
-```
-
-### Biogeoclimatic Units
-
-Here is a map of the biogeoclimatic zone/subzone/varients in the `r es.name` Ecosection.
-
-```{r bec}
-bec <- bcdc_query_geodata ("f358a53b-ffde-4830-a325-a5a03ff672c3", crs = alb) %>% 
-  filter(INTERSECTS(es)) %>% 
-  collect() %>% st_intersection(es)
-plot(bec["MAP_LABEL"])
-```
-
-This is the end of the working part of this demo.
-
-```{r leaflet}
-leaflet (es)
-```
-
-
-Why does this draw nothing??
-
