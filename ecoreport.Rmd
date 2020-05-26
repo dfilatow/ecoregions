@@ -13,19 +13,21 @@ knitr::opts_chunk$set(echo = TRUE)
 
 Below is a map of the ecosections coloured by ecosection code.
 
-```{r, include=FALSE}
+```{r loadlibraries, include = FALSE}
 library (bcdata)
 library (sf)
 library (raster)
-library(fasterize)
+library (fasterize)
+library (leaflet)
 alb = 3005
 ecosections <- bcdc_get_data("ccc01f43-860d-4583-8ba4-e72d8379441e", crs = alb)
 elev <- raster("C:/Users/dfilatow/Documents/GISdownloads/HABC/elev.tif")
 plot (ecosections["ECOSECTION_CODE"])
 ```
 
-```{r, include=FALSE}
 
+```{r ecosectionname, include=FALSE}
+es.name <- "Elk Valley"
 #ecosections$ELEV_MAX <- raster::extract(elev, ecosections, fun = max)
 #plot (ecosections["ELEV_MAX"])
 #es.r <- fasterize(ecosections, elev,field = "OBJECTID")
@@ -33,11 +35,14 @@ plot (ecosections["ECOSECTION_CODE"])
 #plot(test)
 
 ```
-Here is a map of the Elk Valley Ecosection showing the 1 ha mean elevation.
 
-```{r ecosections}
-#print(ecosections$ECOSECTION_NAME)
-es <- filter(ecosections, ECOSECTION_NAME == "Elk Valley")
+### Ecosection Topography
+
+Here is a map of the `r es.name` Ecosection showing the 1 ha mean elevation.
+
+```{r elevecosection}
+
+es <- filter(ecosections, ECOSECTION_NAME == as.character(es.name))
 es.elev <- elev %>% raster::crop(es) %>% mask(es)
 plot(es.elev)
 
@@ -45,7 +50,19 @@ plot(es.elev)
 
 This is a histogram of the 1 ha elevation in the ecosection.
 
-```{r}
+```{r elevhistogram}
 hist(es.elev)
 ```
 
+### Biogeoclimatic Units
+
+Here is a map of the biogeoclimatic zone/subzone/varients in the `r es.name` Ecosection.
+
+```{r bec}
+bec <- bcdc_query_geodata ("f358a53b-ffde-4830-a325-a5a03ff672c3", crs = alb) %>% 
+  filter(INTERSECTS(es)) %>% 
+  collect() %>% st_intersection(es)
+plot(bec["MAP_LABEL"])
+```
+
+This is the end of the demo.
